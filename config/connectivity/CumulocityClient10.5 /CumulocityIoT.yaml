@@ -1,0 +1,34 @@
+# $Copyright (c) 2016-2019 Software AG, Darmstadt, Germany and/or Software AG USA Inc., Reston, VA, USA, and/or its subsidiaries and/or its affiliates and/or their licensors.$
+# Use, reproduction, transfer, publication or disclosure is prohibited except as specifically provided for in your License Agreement with Software AG
+#
+# This is a YAML configuration file. See the associated .properties file for an 
+# easy way to change the most commonly needed configuration settings.
+
+###########################################################################################
+# The Cumulocity IoT connectivity plug-in configuration for communicating with the 
+# IoT devices connected to Cumulocity IoT
+###########################################################################################
+
+correlatorLogging:
+    com.cumulocity.sdk.client.notification.MessageExchange: OFF
+
+plugins:
+    ApamaConnectivityForCumulocityIoT:
+        classpath:
+           - ${APAMA_HOME}/lib/cumulocity/10.5/connectivity-cumulocity.jar
+        class: com.apama.cumulocity.Transport
+
+startChains:
+    CumulocityIoT:
+        - apama.eventMap:
+                    allowMissing: true
+        - ApamaConnectivityForCumulocityIoT:
+           requestAllDevices: false
+           subscribeToAllMeasurements: false
+           subscribeToDevices: false
+           subscribeToOperations: false
+           username: ${CUMULOCITY_USERNAME}
+           password: ${CUMULOCITY_PASSWORD}
+           appKey: ${CUMULOCITY_APPKEY}
+           url: ${CUMULOCITY_SERVER_URL}
+

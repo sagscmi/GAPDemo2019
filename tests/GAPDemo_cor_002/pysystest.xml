@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<pysystest type="auto">
+  
+  <description> 
+    <title>Basic test of phone flip detection, with external correlator and Cumulocity connection</title>
+    <purpose><![CDATA[Initialise correlator connection to Cumulocity and inject demo application monitor.  Send in test data for one device and verify that the expected number of phone flips is detected.]]>
+    </purpose>
+  </description>
+  
+  <classification>
+    <groups inherit="true">
+      <group></group>
+    </groups>
+    <modes inherit="true">
+    </modes>
+  </classification>
+
+  <!-- <skipped reason=""/> -->
+
+  <data>
+    <class name="PySysTest" module="run"/>
+  </data>
+  
+  <traceability>
+    <requirements>
+      <requirement id=""/>     
+    </requirements>
+  </traceability>
+</pysystest>

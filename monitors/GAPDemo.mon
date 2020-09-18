@@ -1,0 +1,99 @@
+// $Copyright (c) 2018-2019 Software AG, Darmstadt, Germany and/or Software AG USA Inc., Reston, VA, USA, and/or its subsidiaries and/or its affiliates and/or their licensors.$
+// Use, reproduction, transfer, publication or disclosure is prohibited except as specifically provided for in your License Agreement with Software AG
+
+using com.apama.cumulocity.ManagedObject;
+using com.apama.cumulocity.Measurement;
+using com.apama.cumulocity.MeasurementValue;
+using com.apama.cumulocity.Alarm;
+using com.apama.cumulocity.Event;
+using com.apama.cumulocity.Operation;
+
+using com.apama.cumulocity.SubscribeMeasurements;
+using com.apama.cumulocity.FindManagedObject;
+using com.apama.cumulocity.FindManagedObjectResponse;
+using com.apama.cumulocity.FindManagedObjectResponseAck;
+
+event AccelerationZ {
+	string id;
+	float value;
+}
+
+monitor GAPDemo {
+
+	constant string C8Y_IS_DEVICE                 := "c8y_IsDevice";
+	constant string C8Y_SENSOR_PHONE              := "c8y_SensorPhone";
+	constant string ACCELERATION_MEASUREMENT      := "c8y_Acceleration";
+	constant string ACCELERATION_MEASUREMENT_Z    := "accelerationZ";
+	constant float  ACCELERATION_THRESHOLD         := 0.8;
+
+	action onload {
+		monitor.subscribe(Measurement.CHANNEL);
+		findPhones();
+	}
+
+
+	action findPhones {		
+		// Fetch existing devices
+		FindManagedObject findManagedObject := new FindManagedObject;
+		findManagedObject.reqId := integer.getUnique();
+		findManagedObject.params.add("fragmentType", C8Y_IS_DEVICE);
+		findManagedObject.params.add("type", C8Y_SENSOR_PHONE);
+		
+		monitor.subscribe(FindManagedObjectResponse.CHANNEL);
+		on all FindManagedObjectResponse(reqId = findManagedObject.reqId) as resp
+		and not FindManagedObjectResponseAck(reqId = findManagedObject.reqId) {
+			log "Received device data for phone "+resp.managedObject.name+", id = "+resp.managedObject.id at INFO;
+			log resp.toString() at DEBUG;
+			detectFlips(resp.managedObject.id);
+		}
+		
+		on FindManagedObjectResponseAck(reqId = findManagedObject.reqId) {
+			monitor.unsubscribe(FindManagedObjectResponse.CHANNEL);
+		}
+		
+		send findManagedObject to findManagedObject.CHANNEL;
+	}
+
+	
+	action detectFlips(string device) {
+		on all Measurement(type = ACCELERATION_MEASUREMENT, source = device) as acceleration {
+			dictionary<string, MeasurementValue> measurements := acceleration.measurements.getOrDefault(ACCELERATION_MEASUREMENT);
+			if (measurements.hasKey(ACCELERATION_MEASUREMENT_Z)) then {
+				float accelerationZ := measurements[ACCELERATION_MEASUREMENT_Z].value;
+				log "Received Z-acceleration measurement "+accelerationZ.toString()+" for device "+device at INFO;
+				route AccelerationZ(acceleration.source, accelerationZ);
+			}
+			else {
+				log "Received "+ACCELERATION_MEASUREMENT+" measurement for device "+device+" with no Z-accelaration value" at ERROR;
+			}
+		}
+
+		on all (AccelerationZ(id = device, value < -(ACCELERATION_THRESHOLD)) as z1 -> AccelerationZ(id = device, value > ACCELERATION_THRESHOLD) as z2) {
+			log "Raising FlipDown alarm for device "+device at INFO;
+			log "z1 = "+z1.value.toString()+", z2 = "+z2.value.toString();
+			Alarm alarm := new Alarm;
+			alarm.source := device;
+			alarm.type := "FlipDown";
+			alarm.severity := "MINOR";
+			alarm.status := "ACTIVE";
+			alarm.time := currentTime;
+			alarm.text := "Phone flipped down";
+			send alarm to Alarm.CHANNEL;
+		}
+
+		on all (AccelerationZ(id = device, value > ACCELERATION_THRESHOLD) as z1 -> AccelerationZ(id = device, value < -(ACCELERATION_THRESHOLD)) as z2) {
+			log "Raising FlipUp alarm for device "+device at INFO;
+			log "z1 = "+z1.value.toString()+", z2 = "+z2.value.toString();
+			Alarm alarm := new Alarm;
+			alarm.source := device;
+			alarm.type := "FlipUp";
+			alarm.severity := "MINOR";
+			alarm.status := "ACTIVE";
+			alarm.time := currentTime;
+			alarm.text := "Phone flipped up";
+			send alarm to Alarm.CHANNEL;
+		}
+
+		send SubscribeMeasurements(device) to SubscribeMeasurements.CHANNEL;		
+	}
+}

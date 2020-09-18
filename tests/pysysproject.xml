@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<pysysproject>
+	<requires-pysys>1.5.0</requires-pysys>
+	<requires-python>3.7.4</requires-python>
+	
+	<property root="testRootDir"/>
+	<property environment="env"/>
+	<property osfamily="osfamily"/>
+
+	<!-- User-defined properties -->
+	<property name="APAMA_HOME"              value="${env.APAMA_HOME}"/>
+	<property name="APAMA_WORK"              value="${env.APAMA_WORK}"/>
+	<property name="APAMA_MONITORS_DIR"      value="${APAMA_HOME}/monitors"/>
+	<property name="APAMA_CONNECTIVITY_DIR"  value="${APAMA_HOME}/connectivity/bundles"/>
+	
+	<property name="PROJECT_ROOT"            value="${testRootDir}/.."/>
+	<property name="CONFIG_DIR"              value="${PROJECT_ROOT}/config"/>
+	<property name="EVENTDEFS_DIR"           value="${PROJECT_ROOT}/eventdefinitions"/>
+	<property name="EVENTS_DIR"              value="${PROJECT_ROOT}/events"/>
+	<property name="MONITORS_DIR"            value="${PROJECT_ROOT}/monitors"/>
+	<property name="DEPLOY_FILE"             value="${CONFIG_DIR}/launch/GAPDemo.deploy"/>
+
+	<property name="C8Y_URL"                 value="{URL}"/>
+	<property name="C8Y_USERNAME"            value="{USERNAME}"/>
+	<property name="C8Y_PASSWORD"            value="{PASSWORD}"/>
+
+	<!-- Standard default settings. See sample project file and API docs for more details. -->
+	<property name="defaultAbortOnError" value="true"/>	
+	<property name="defaultIgnoreExitStatus" value="false"/>
+	<property name="defaultEnvironsTempDir" value="self.output"/>
+	<property name="redirectPrintToLogger" value="false"/>
+	<property name="supportMultipleModesPerRun" value="true"/>
+
+	<!-- Custom test framework extensions, if needed -->
+	<!--
+	<path value="../framework" relative="true" />
+	<runner classname="MyRunner" module="my.organization"/>
+	<maker classname="MyTestMaker" module="my.organization"/>
+	-->
+	<path value="${testRootDir}/scripts" relative="true" />
+
+	<writers>
+		<writer classname="TravisCIWriter" module="pysys.writer.ci"></writer>
+
+		<writer classname="JUnitXMLResultsWriter" module="pysys.writer">
+			<property name="outputDir" value="${testRootDir}/pysys-junit-report"/>
+		</writer>
+		
+		<writer classname="ConsoleSummaryResultsWriter" module="pysys.writer">
+			<property name="showOutputDir" value="false"/>
+			<property name="showOutcomeReason" value="true"/>
+		</writer>
+	</writers>
+
+	<default-file-encodings>
+		<default-file-encoding pattern="run.log" encoding="utf-8"/>
+		
+		<default-file-encoding pattern="*.xml"  encoding="utf-8"/>
+		<default-file-encoding pattern="*.json" encoding="utf-8"/>
+		<default-file-encoding pattern="*.yaml" encoding="utf-8"/>
+	</default-file-encodings>	
+	
+	<formatters>
+		<formatter classname="ColorLogFormatter" module="pysys.utils.logutils" 
+			name="stdout" messagefmt="%(asctime)s %(levelname)-5s %(message)s" datefmt="%H:%M:%S">
+		</formatter>
+
+		<formatter classname="BaseLogFormatter" module="pysys.utils.logutils" 
+			name="runlog" messagefmt="%(asctime)s %(levelname)-5s %(message)s" datefmt=""/>
+	</formatters>
+	
+</pysysproject>

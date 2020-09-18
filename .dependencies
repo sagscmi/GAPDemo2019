@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<apama-project>
+	<dependency>
+		<dependencyentry path="" kind="src" excluding="tests/"/>
+	</dependency>
+	<catalogs>
+		<catalog path="catalogs/Generated scenario blocks" type="block"/>
+		<catalog path="catalogs/GAPDemo blocks" type="block"/>
+		<catalog path="catalogs/GAPDemo functions" type="function"/>
+	</catalogs>
+	<bundles>
+		<bundle file="Cumulocity Transport 10.5.bnd" origin-path="" origin="CONNECTIVITY_CATALOG">
+			<config-files>
+			</config-files>
+			<bundle-instance-files>
+				<file name="../bundles/CumulocityConnectivity/10.5/CumulocityIoT.properties" timestamp="1572883275190"/>
+				<file name="../bundles/CumulocityConnectivity/10.5/CumulocityIoT.yaml" timestamp="1572883275193"/>
+			</bundle-instance-files>
+			<static-files>
+			</static-files>
+			<dashboard-files>
+			</dashboard-files>
+			<evt-files>
+			</evt-files>
+		</bundle>
+		<bundle file="AutomaticOnApplicationInitialized.bnd" origin-path="" origin="PRODUCT_CATALOG">
+			<instance name=""/>
+			<config-files>
+			</config-files>
+			<bundle-instance-files>
+			</bundle-instance-files>
+			<static-files>
+			</static-files>
+			<dashboard-files>
+			</dashboard-files>
+			<evt-files>
+				<file name="${APAMA_HOME}/monitors/AutomaticOnApplicationInitialized.evt" timestamp="1572883275583"/>
+			</evt-files>
+		</bundle>
+	</bundles>
+</apama-project>
